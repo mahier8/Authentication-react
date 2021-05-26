@@ -35,8 +35,7 @@ const AuthForm = () => {
       url = 
       'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBYJHtwS0WTina0sStScP14mKZQBwIMpPw'
     }
-    fetch(
-      url,{
+    fetch(url, {
       method: 'POST',
       body: JSON.stringify({
         email: enteredEmail,
@@ -46,12 +45,13 @@ const AuthForm = () => {
       headers: {
         'Content-Type': 'application/json', 
       },
-      }).then(res => {
+      })
+      .then((res) => {
       setIsLoading(false);
       if (res.ok) {
         return res.json();
       } else {
-        return res.json().then(data => {
+        return res.json().then((data) => {
           let errorMessage = 'Authentication failed!';
           // if (data && data.error && data.error.message) {
           // errorMessage = data.error.message;
@@ -61,14 +61,16 @@ const AuthForm = () => {
         });
       }
     })
-    .then(data => {
-      authCtx.login(data.idToken);
+    .then((data) => {
+      const expirationTime = new Date(
+        new Date().getTime() + +data.expiresIn * 1000);
+      authCtx.login(data.idToken, expirationTime.toISOString());
       history.replace('/');
     })
     .catch((err) => {
       alert(err.message);
     });
-  }
+  };
 
   return (
     <section className={classes.auth}>
@@ -80,10 +82,17 @@ const AuthForm = () => {
         </div>
         <div className={classes.control}>
           <label htmlFor='password'>Your Password</label>
-          <input type='password' id='password' required ref={passwordInputRef} />
+          <input 
+          type='password' 
+          id='password' 
+          required 
+          ref={passwordInputRef} 
+          />
         </div>
         <div className={classes.actions}>
-          {!isLoading && <button>{isLogin ? 'Login' : 'Create Account'}</button>}
+          {!isLoading && (
+          <button>{isLogin ? 'Login' : 'Create Account'}</button>
+          )}
           {isLoading && <p>Sending request...</p>}
           <button
             type='button'
